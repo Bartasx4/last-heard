@@ -1,0 +1,207 @@
+[
+  {
+    "id": 2001,
+    "country": "EU",
+    "address": "137.226.79.121"
+  },
+  {
+    "id": 2021,
+    "country": "GR",
+    "address": "81.4.104.120"
+  },
+  {
+    "id": 2041,
+    "country": "NL",
+    "address": "44.137.42.20"
+  },
+  {
+    "id": 2061,
+    "country": "BE",
+    "address": "194.146.121.130"
+  },
+  {
+    "id": 2081,
+    "country": "FR",
+    "address": "54.38.172.68"
+  },
+  {
+    "id": 2082,
+    "country": "FR",
+    "address": "217.182.129.131"
+  },
+  {
+    "id": 2141,
+    "country": "ES",
+    "address": "84.232.5.113"
+  },
+  {
+    "id": 2162,
+    "country": "HU",
+    "address": "master.brandmeister.hu"
+  },
+  {
+    "id": 2222,
+    "country": "IT",
+    "address": "80.211.95.98"
+  },
+  {
+    "id": 2262,
+    "country": "RO",
+    "address": "94.176.6.38"
+  },
+  {
+    "id": 2282,
+    "country": "CH",
+    "address": "185.46.59.78"
+  },
+  {
+    "id": 2302,
+    "country": "CZ",
+    "address": "80.250.21.206"
+  },
+  {
+    "id": 2322,
+    "country": "AT",
+    "address": "62.171.130.35"
+  },
+  {
+    "id": 2341,
+    "country": "GB",
+    "address": "51.68.220.36"
+  },
+  {
+    "id": 2382,
+    "country": "DK",
+    "address": "185.51.76.16"
+  },
+  {
+    "id": 2402,
+    "country": "SE",
+    "address": "44.5.24.178"
+  },
+  {
+    "id": 2421,
+    "country": "NO",
+    "address": "bm.hamlabs.no"
+  },
+  {
+    "id": 2441,
+    "country": "FI",
+    "address": "brandmeister.dmr.fi"
+  },
+  {
+    "id": 2502,
+    "country": "RU",
+    "address": "brandmeister.r2aee.net"
+  },
+  {
+    "id": 2503,
+    "country": "RU",
+    "address": "164.215.71.108"
+  },
+  {
+    "id": 2602,
+    "country": "PL",
+    "address": "195.26.76.59"
+  },
+  {
+    "id": 2621,
+    "country": "DE",
+    "address": "master1.bm262.de"
+  },
+  {
+    "id": 2622,
+    "country": "DE",
+    "address": "178.238.234.72"
+  },
+  {
+    "id": 2682,
+    "country": "PT",
+    "address": "193.137.237.12"
+  },
+  {
+    "id": 2721,
+    "country": "IE",
+    "address": "44.155.254.5"
+  },
+  {
+    "id": 2841,
+    "country": "BG",
+    "address": "193.93.24.31"
+  },
+  {
+    "id": 2931,
+    "country": "SI",
+    "address": "46.54.227.93"
+  },
+  {
+    "id": 3021,
+    "country": "CA",
+    "address": "158.69.203.89"
+  },
+  {
+    "id": 3102,
+    "country": "US",
+    "address": "74.91.114.19"
+  },
+  {
+    "id": 3103,
+    "country": "US",
+    "address": "74.91.118.251"
+  },
+  {
+    "id": 3104,
+    "country": "US",
+    "address": "162.248.88.117"
+  },
+  {
+    "id": 3341,
+    "country": "MX",
+    "address": "72.1.241.232"
+  },
+  {
+    "id": 4251,
+    "country": "IL",
+    "address": "109.226.57.187"
+  },
+  {
+    "id": 4501,
+    "country": "KR",
+    "address": "bm.dv.or.kr"
+  },
+  {
+    "id": 4601,
+    "country": "CN",
+    "address": "47.100.76.205"
+  },
+  {
+    "id": 5021,
+    "country": "MY",
+    "address": "103.197.58.171"
+  },
+  {
+    "id": 5051,
+    "country": "AU",
+    "address": "103.230.158.71"
+  },
+  {
+    "id": 5151,
+    "country": "PH",
+    "address": "120.89.61.77"
+  },
+  {
+    "id": 6551,
+    "country": "ZA",
+    "address": "154.66.196.131"
+  },
+  {
+    "id": 7242,
+    "country": "BR",
+    "address": "191.252.185.53"
+  },
+  {
+    "id": 7301,
+    "country": "CL",
+    "address": "170.239.84.17"
+  }
+]
