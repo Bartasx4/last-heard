@@ -1,4 +1,3 @@
-import json
 import logging
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import Qt, pyqtSignal
@@ -17,6 +16,8 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
     QTableWidgetItem,
 )
+
+from content_creator import ContentCreator
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ class Gui(QMainWindow):
         super().__init__()
 
         self.setWindowTitle('Last Heard')
-        self.resize(1200, 800)
+        self.resize(1200, 700)
         # self.setGeometry(100, 100, 1200, 800)
 
         # General layout
@@ -49,12 +50,8 @@ class Gui(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         self.worker = None
-        self.user_list = []
-
-        self._load_master_file()
-        self._load_country_prefix_file()
-        self._load_talkgroup_file()
-        self._set_predefined_talkgroup_list()
+        self.callsign_list = []
+        self.cc = ContentCreator()
 
         self._create_last_heard_panel()
         self._create_browse_panel()
@@ -65,7 +62,7 @@ class Gui(QMainWindow):
         self.general_layout.setColumnStretch(1, 2)
         self.general_layout.setColumnStretch(2, 1)
 
-        self._handle_search_category_change()
+        self._handle_track_category_change()
 
     def _create_last_heard_panel(self):
         self.last_heard_label = QLabel('Last Heard')
@@ -93,19 +90,19 @@ class Gui(QMainWindow):
     def _create_search_panel(self):
         self.search_hint = []
         self.search_users = []
-        self.search_category = QComboBox()
-        self.search_category.addItems(self.SEARCH_CATEGORY.keys())
-        self.search_category.currentIndexChanged.connect(self._handle_search_category_change)
-        self.search_object = QComboBox()
-        self.search_object.setEditable(True)
+        self.track_category = QComboBox()
+        self.track_category.addItems(self.SEARCH_CATEGORY.keys())
+        self.track_category.currentIndexChanged.connect(self._handle_track_category_change)
+        self.track_object = QComboBox()
+        self.track_object.setEditable(True)
         self.search_button = QPushButton('Śledź')
         self.search_button.clicked.connect(self._handle_search_button_clicked)
         self.search_list = QListWidget()
         search_panel_layout = QGridLayout()
         search_panel_layout.addWidget(QLabel('Kategoria'), 0, 0, alignment=Qt.AlignmentFlag.AlignRight)
-        search_panel_layout.addWidget(self.search_category, 0, 1, 1, 2)
+        search_panel_layout.addWidget(self.track_category, 0, 1, 1, 2)
         search_panel_layout.addWidget(QLabel('Obiekt'), 1, 0, alignment=Qt.AlignmentFlag.AlignRight)
-        search_panel_layout.addWidget(self.search_object, 1, 1, 1, 2)
+        search_panel_layout.addWidget(self.track_object, 1, 1, 1, 2)
         search_panel_layout.addWidget(self.search_button, 2, 1)
         search_panel_layout.setColumnStretch(2, 1)
 
@@ -117,82 +114,48 @@ class Gui(QMainWindow):
     def _create_status_bar(self):
         self.statusbar = self.statusBar()
 
-    def _set_predefined_talkgroup_list(self):
-        country_list = ['PL', 'SE']
-        group_list = self.SEARCH_CATEGORY['Grupa']
-        predefined_list = []
-        new_list = []
-        while group_list:
-            item = group_list.pop()
-            country_id = self.get_talkgroup_country(item[1])
-            if self.master_by_id(country_id) in country_list:
-                predefined_list.append(item)
-            else:
-                new_list.append(item)
-        new_list = sorted(predefined_list, key=lambda item: item[1]) + new_list
-        self.SEARCH_CATEGORY['Grupa'] = new_list
-
-    def _load_master_file(self):
-        with open('help_data/master.json', 'r') as file:
-            data = json.load(file)
-        country = [(element['country'], str(element['id'])) for element in data]
-        self.SEARCH_CATEGORY['Kraj'] = sorted(country, key=lambda item: item[0])
-
-    def _load_talkgroup_file(self):
-        self.talkgroup = {}
-        with open('help_data/talkgroup.json', 'r') as file:
-            data = json.load(file)
-        talkgroup = [(group_name, group_id) for group_id, group_name in data.items()]
-        self.SEARCH_CATEGORY['Grupa'] = talkgroup
-
-    def _load_country_prefix_file(self):
-        with open('help_data/country_prefix.json', 'r') as file:
-            country_prefix = json.load(file)
-        self.country_prefix = {key: value.upper() for key, value in country_prefix.items()}
-
-    def _handle_search_category_change(self):
-        category = self.search_category.currentText()
-        self.search_enabled = False
-        self.search_object.setEditText('')
+    def _handle_track_category_change(self):
+        category = self.track_category.currentText()
+        self.track_object.setEditText('')
         self.search_list.clear()
-        self.search_object.clear()
+        self.track_object.clear()
         self.search_hint.clear()
 
-        for element in self.SEARCH_CATEGORY[category]:
-            if category == 'Kraj':
-                country = element[0]
-            elif category == 'Grupa':
-                country = self.master_by_id(self.get_talkgroup_country(element[1]))
-            else:
-                country = None
-            if country:
-                icon_path = f'flag/{country.lower()}.png'
-                icon = QIcon(icon_path)
-                item = QListWidgetItem(icon, element[0])
-                self.search_object.addItem(icon, element[0])
-            else:
-                item = QListWidgetItem(element[0])
-                self.search_object.addItem(element[0])
-            self.search_hint.append(element[0])
-            self.search_list.addItem(item)
+        if category == 'Kraj':
+            items = [(country, country) for country in self.cc.master.keys()]
+        elif category == 'Grupa':
+            items = [(group[0], self.cc.get_talkgroup_country(group[1])) for group in self.cc.talkgroup]
+        elif category == 'Znak':
+            items = [(callsign[1], self.cc.get_callsign_country(callsign[1])) for callsign in self.callsign_list]
+        else:
+            return
 
-        if category == 'Znak':
-            self.search_list.addItems(self.user_list)
+        for item in items:
+            if item[1]:
+                icon_path = f'flag/{item[1].lower()}.png'
+                icon = QIcon(icon_path)
+                self.track_object.addItem(icon, item[0])
+                widget_item = QListWidgetItem(icon, item[0])
+            else:
+                self.track_object.addItem(item[0])
+                widget_item = QListWidgetItem(item[0])
+            self.search_list.addItem(widget_item)
+            self.search_hint.append(item[0])
 
         completer = QCompleter(self.search_hint)
-        self.search_object.setCompleter(completer)
+        self.track_object.setCompleter(completer)
 
     def _handle_search_button_clicked(self):
-        self.search_enabled = True
+        self.track_enabled = True
         self.last_heard_table.clearContents()
-        selected_category = self.search_category.currentText()
+        selected_category = self.track_category.currentText()
         if selected_category == 'Kraj':
             return_category = 'Master'
         elif selected_category == 'Grupa':
             return_category = 'DestinationID'
         else:
             return_category = None
-        selected_object = self.search_object.currentText()
+        selected_object = self.track_object.currentText()
         return_object = None
         for element in self.SEARCH_CATEGORY[selected_category]:
             if selected_object == element[0]:
@@ -203,64 +166,24 @@ class Gui(QMainWindow):
         }
         self.track_enabled.emit(data)
 
-    def get_talkgroup_country(self, talkgroup_id: str) -> str | None:
-        prefix = talkgroup_id[:3]
-        if prefix in self.country_prefix:
-            for element in self.SEARCH_CATEGORY['Kraj']:
-                if element[0] == self.country_prefix[prefix]:
-                    return element[1]
-
     def add_message(self, table: QTableWidget, message: dict):
         new_row = [
             QTableWidgetItem(message['Date_sort'] if 'Date_sort' in message else ''),
             QTableWidgetItem(message['Date'] if 'Date' in message else ''),
             QTableWidgetItem(message['Start-Stop'] if 'Start-Stop' in message else ''),
             QTableWidgetItem(message['Duration'] if 'Duration' in message else ''),
+            self.cc.talk_group_item(message['DestinationID']),
             QTableWidgetItem(message['ShowName'] if 'ShowName' in message else ''),
             QTableWidgetItem(message['TalkerAlias'] if 'TalkerAlias' in message else ''),
-            self.new_destination_item(message['DestinationID']),
-            self.new_master_item(message['Master']),
+            self.cc.master_item(message['Master']),
         ]
         table.insertRow(0)
 
         for column, element in enumerate(new_row):
             table.setItem(0, column, element)
 
-    def new_table_item(self, label: str, master_id: str | None = None) -> QTableWidgetItem:
-        item = QTableWidgetItem(label)
-        if master_id:
-            for element in self.SEARCH_CATEGORY['Kraj']:
-                if master_id == element[1]:
-                    icon = QIcon(f'flag/{element[0]}.png')
-                    item.setIcon(icon)
-                    break
-        return item
-
-    def new_master_item(self, master_id: str):
-        return self.new_table_item(self.master_by_id(master_id), master_id)
-
-    def new_destination_item(self, destination_id: str):
-        destination_name = self.destination_by_id(destination_id)
-        if destination_name:
-            label = destination_name + f' ({destination_id})'
-        else:
-            label = destination_id
-        country = self.get_talkgroup_country(destination_id)
-        return self.new_table_item(label, country)
-
-    def master_by_id(self, id_):
-        for element in self.SEARCH_CATEGORY['Kraj']:
-            if element[1] == id_:
-                return element[0]
-
-    def destination_by_id(self, id_: str) -> str | None:
-        for element in self.SEARCH_CATEGORY['Grupa']:
-            if element[1] == id_:
-                return element[0]
-        return None
-
     def update_user_list(self, new_list):
-        if len(new_list) != self.user_list:
-            self.user_list = sorted(new_list)
-            if self.search_category.currentText() == 'Znak':
-                self._handle_search_category_change()
+        if len(new_list) != self.callsign_list:
+            self.callsign_list = sorted(new_list)
+            if self.track_category.currentText() == 'Znak':
+                self._handle_track_category_change()

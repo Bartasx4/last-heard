@@ -29,7 +29,7 @@ class Engine:
 
     def _handle_new_message(self, message: dict[str: str]):
         self.data.append(message)
-        self.check_new_user(message)
+        self.check_new_callsign(message)
         self.filter_and_add_message(self.gui.last_heard_table, self.track_filter, message)
 
     def _handle_track_start(self, track_filter: dict):
@@ -50,11 +50,13 @@ class Engine:
         table.setSortingEnabled(False)
         table.sortItems(0)
 
-    def check_new_user(self, message: dict):
-        user = message['SourceCall']
-        if user not in self.user_list:
-            self.user_list.append(user)
-            self.gui.update_user_list(self.user_list)
+    def check_new_callsign(self, message: dict):
+        new_callsign = message['SourceCall']
+        for callsign in self.user_list:
+            if new_callsign == callsign[1]:
+                return
+        self.user_list.append((message['ShowName'], new_callsign))
+        self.gui.update_user_list(self.user_list)
 
     def update_status(self):
         status = f'{self.track_filter["category"]}: {self.track_filter["object"]} '
